@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 
@@ -15,7 +15,7 @@ export class AuthService {
     );
 
     if (user) {
-      throw Error('User Already Exist');
+      throw new HttpException('User Already Exist', HttpStatus.BAD_REQUEST);
     }
 
     this.users.push({
@@ -37,7 +37,7 @@ export class AuthService {
     );
 
     if (!user) {
-      throw Error('User Not Found');
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     }
 
     const hashedPassword = crypto
@@ -46,7 +46,7 @@ export class AuthService {
       .digest('hex');
 
     if (user.password !== hashedPassword) {
-      throw Error('Invalid Password');
+      throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
     }
 
     const accessToken = jwt.sign({ username: user.username }, JWT_SECRET);
